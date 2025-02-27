@@ -54,7 +54,7 @@
                     "name": "Jump",
                     "type": "Button",
                     "id": "f1ba0d36-48eb-4cd5-b651-1c94a6531f70",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -255,7 +255,7 @@
                 },
                 {
                     "name": "",
-                    "id": "1b93c3b7-5ab6-4d71-a1c0-1646130e4ea6",
+                    "id": "3d22dbe9-24e3-480c-b319-bb182108c413",
                     "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
