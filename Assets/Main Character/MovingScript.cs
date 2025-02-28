@@ -57,10 +57,12 @@ public class MovingScript : MonoBehaviour
         if (!m_TouchAction.IsPressed()) return;
         var tmp = new Vector3(m_LookAction.ReadValue<Vector2>().x, m_LookAction.ReadValue<Vector2>().y);
         var ray = m_MainCamera.ScreenPointToRay(tmp);
-        if (!Physics.Raycast(ray, out var hit)) return;
-        if (!hit.transform.CompareTag("LookFloor")) return;
-        var angle = Vector3.SignedAngle(Vector3.forward, hit.point - transform.position, Vector3.up);
-        m_CurrentCourse = Vector3.Normalize(hit.point - transform.position);
-        transform.rotation = Quaternion.Euler(0, angle, 0);
+        if (Physics.Raycast(ray, out var hit))
+        {
+            //if (!hit.transform.CompareTag("LookFloor")) return;
+            var angle = Vector3.SignedAngle(Vector3.forward, hit.point - transform.position, Vector3.up);
+            m_CurrentCourse = Vector3.Normalize(hit.point - transform.position);
+            transform.rotation = Quaternion.Euler(0, angle, 0);
+        }
     }
 }
