@@ -1,35 +1,65 @@
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class CameraScript : MonoBehaviour
 {
-    [SerializeField] private float widthGreenZone = 10f; 
-    [SerializeField] private float heightGreenZone = 10f; 
+    public UnityEvent<Vector3> pointTargetEvent = new UnityEvent<Vector3>();
+    
+    [SerializeField] private float maxViewingRadius = 5f;
+    
+    private InputAction m_LookAction;
     
     private GameObject m_Player;
+    private Camera m_Camera;
     private Vector3 m_CameraOffset;
     
-    void Start()
+    private const int RaycastPower = 5;
+    
+    private void Start()
     {
+        m_LookAction = InputSystem.actions.FindAction("Look");
+        m_Camera = GetComponent<Camera>();
+        
         m_Player = GameObject.FindWithTag("Player");
         m_CameraOffset = transform.position;
+        
+        pointTargetEvent.AddListener(MoveCamera);
     }
 
-    private void LateUpdate()
+    private void Update()
     {
-        var tmpX = m_Player.transform.position.x - transform.position.x + m_CameraOffset.x;
-        var tmpZ = m_Player.transform.position.z - transform.position.z + m_CameraOffset.z;
+        var tmp = new Vector3(m_LookAction.ReadValue<Vector2>().x, m_LookAction.ReadValue<Vector2>().y);
+        var ray = m_Camera.ScreenPointToRay(tmp);
 
-        if (Mathf.Abs(tmpX) > widthGreenZone / 2)
+        var result = new RaycastHit[RaycastPower];
+        var _ = Physics.RaycastNonAlloc(ray, result);
+        foreach (var hit in result)
         {
-            var newCoord = m_Player.transform.position.x + m_CameraOffset.x - widthGreenZone * Mathf.Sign(tmpX) / 2;
-            transform.position = new Vector3(newCoord, transform.position.y, transform.position.z);
+            if (hit.transform is null) continue;
+            if (!hit.transform.CompareTag("LookFloor")) continue;
+            var worldPosition = new Vector3(hit.point.x, m_Player.transform.position.y, hit.point.z);
+            pointTargetEvent.Invoke(worldPosition);
+        }
+    }
+
+    private void MoveCamera(Vector3 mousePosition)
+    {
+        var convertedPlayerCoord = m_Player.transform.position + m_CameraOffset;
+        var convertedMouseCoord = mousePosition + m_CameraOffset;
+
+        var viewingRadius = Vector3.Magnitude(convertedMouseCoord - transform.position) / 2;
+        if (viewingRadius > maxViewingRadius)
+        {
+            viewingRadius = maxViewingRadius;
         }
 
-        if (Mathf.Abs(tmpZ) > heightGreenZone / 2)
-        {
-            var newCoord = m_Player.transform.position.z + m_CameraOffset.z - heightGreenZone * Mathf.Sign(tmpZ) / 2;
-            transform.position = new Vector3(transform.position.x, transform.position.y, newCoord);
-        }
+        var movingDirection = Vector3.Normalize(convertedMouseCoord - transform.position);
+        var targetPosition =
+            new Vector3(movingDirection.x, 0, movingDirection.z) * viewingRadius + convertedPlayerCoord;
+
+        var pathLenght = Vector3.Magnitude(targetPosition - transform.position);
+        
+        transform.position = Vector3.Lerp(transform.position, targetPosition, pathLenght * Time.deltaTime);
     }
 }

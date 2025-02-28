@@ -5,13 +5,12 @@ public class MovingScript : MonoBehaviour
 {
     private static readonly int RunX = Animator.StringToHash("RunX");
     private static readonly int RunY = Animator.StringToHash("RunY");
+    private static readonly int IsRunning = Animator.StringToHash("isRunning");
 
     [SerializeField] private float speed = 10000f;
     [SerializeField] private float sprintMultiple = 2f;
     
     private InputAction m_MoveAction;
-    private InputAction m_LookAction;
-    private InputAction m_TouchAction;
     private InputAction m_SprintAction;
 
     private Animator m_Animator;
@@ -20,12 +19,13 @@ public class MovingScript : MonoBehaviour
     private Camera m_MainCamera;
 
     private Vector3 m_CurrentCourse = Vector3.forward;
-    
+    private Vector3 m_OldPosition = Vector3.zero;
+
+    private const float VelocityError = 0.3f;
+
     private void Start()
     {
         m_MoveAction = InputSystem.actions.FindAction("Move");
-        m_LookAction = InputSystem.actions.FindAction("Look");
-        m_TouchAction = InputSystem.actions.FindAction("MouseTouch");
         m_SprintAction = InputSystem.actions.FindAction("Sprint");
         
         m_Animator = GetComponent<Animator>();
@@ -35,13 +35,34 @@ public class MovingScript : MonoBehaviour
         {
             m_MainCamera = Camera.main;
         }
+        
+        m_MainCamera.GetComponent<CameraScript>().pointTargetEvent.AddListener(LookDirection);
     }
 
-    private void Update()
+    private void LookDirection(Vector3 worldPosition)
+    {
+        transform.LookAt(worldPosition, Vector3.up);
+        m_CurrentCourse = Vector3.Normalize(worldPosition - transform.position);
+    }
+
+    private void FixedUpdate()
     {
         var inputDirection = m_MoveAction.ReadValue<Vector2>();
-        m_Animator.SetFloat(RunX, inputDirection.x);
-        m_Animator.SetFloat(RunY, inputDirection.y);
+
+        var velocity = Vector3.Distance(m_OldPosition, transform.position) / Time.fixedDeltaTime;
+        m_OldPosition = transform.position;
+        
+        if (velocity < VelocityError)
+        {
+            m_Animator.SetFloat(RunX, 0);
+            m_Animator.SetFloat(RunY, 0);
+        }
+        else
+        {
+            m_Animator.SetFloat(RunX, inputDirection.x);
+            m_Animator.SetFloat(RunY, inputDirection.y);                    
+        }
+        m_Animator.SetBool(IsRunning, m_SprintAction.IsPressed());
         
         if (m_MoveAction.IsPressed())
         {
@@ -56,23 +77,9 @@ public class MovingScript : MonoBehaviour
                 speedMultiple = sprintMultiple;
             }
 
-            m_Rigidbody.AddForce(movingDirection * (speed * speedMultiple * Time.deltaTime));
-        }
-        
-        LookDirection();
-    }
-
-    private void LookDirection()
-    {
-        if (!m_TouchAction.IsPressed()) return;
-        var tmp = new Vector3(m_LookAction.ReadValue<Vector2>().x, m_LookAction.ReadValue<Vector2>().y);
-        var ray = m_MainCamera.ScreenPointToRay(tmp);
-        if (Physics.Raycast(ray, out var hit))
-        {
-            if (!hit.transform.CompareTag("LookFloor")) return;
-            var angle = Vector3.SignedAngle(Vector3.forward, hit.point - transform.position, Vector3.up);
-            m_CurrentCourse = Vector3.Normalize(hit.point - transform.position);
-            transform.rotation = Quaternion.Euler(0, angle, 0);
+            m_Rigidbody.AddForce(
+                movingDirection * (speed * speedMultiple * Time.fixedDeltaTime),
+                ForceMode.Acceleration);
         }
     }
 }
