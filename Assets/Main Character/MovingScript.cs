@@ -7,10 +7,12 @@ public class MovingScript : MonoBehaviour
     private static readonly int RunY = Animator.StringToHash("RunY");
 
     [SerializeField] private float speed = 10000f;
+    [SerializeField] private float sprintMultiple = 2f;
     
     private InputAction m_MoveAction;
     private InputAction m_LookAction;
     private InputAction m_TouchAction;
+    private InputAction m_SprintAction;
 
     private Animator m_Animator;
     private Rigidbody m_Rigidbody;
@@ -24,6 +26,7 @@ public class MovingScript : MonoBehaviour
         m_MoveAction = InputSystem.actions.FindAction("Move");
         m_LookAction = InputSystem.actions.FindAction("Look");
         m_TouchAction = InputSystem.actions.FindAction("MouseTouch");
+        m_SprintAction = InputSystem.actions.FindAction("Sprint");
         
         m_Animator = GetComponent<Animator>();
         m_Rigidbody = GetComponent<Rigidbody>();
@@ -45,8 +48,15 @@ public class MovingScript : MonoBehaviour
             var lookDirection = new Vector3(m_CurrentCourse.x, 0, m_CurrentCourse.z);
             var horizontalLookDirection = Quaternion.Euler(0, 90, 0) * lookDirection;
             var movingDirection = horizontalLookDirection * inputDirection.x + lookDirection * inputDirection.y;
+
+            var speedMultiple = 1f;
             
-            m_Rigidbody.AddForce(movingDirection * (speed * Time.deltaTime));
+            if (m_SprintAction.IsPressed())
+            {
+                speedMultiple = sprintMultiple;
+            }
+
+            m_Rigidbody.AddForce(movingDirection * (speed * speedMultiple * Time.deltaTime));
         }
         
         LookDirection();
@@ -59,7 +69,7 @@ public class MovingScript : MonoBehaviour
         var ray = m_MainCamera.ScreenPointToRay(tmp);
         if (Physics.Raycast(ray, out var hit))
         {
-            //if (!hit.transform.CompareTag("LookFloor")) return;
+            if (!hit.transform.CompareTag("LookFloor")) return;
             var angle = Vector3.SignedAngle(Vector3.forward, hit.point - transform.position, Vector3.up);
             m_CurrentCourse = Vector3.Normalize(hit.point - transform.position);
             transform.rotation = Quaternion.Euler(0, angle, 0);
