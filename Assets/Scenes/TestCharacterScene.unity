@@ -737,21 +737,9 @@ PrefabInstance:
       propertyPath: speed
       value: 6000
       objectReference: {fileID: 0}
-    - target: {fileID: 2535459930639507282, guid: dbf016b30a849c746b0902fd2ce36372, type: 3}
-      propertyPath: sprintMultiple
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4030736059529654068, guid: dbf016b30a849c746b0902fd2ce36372, type: 3}
-      propertyPath: m_Size.y
-      value: 3.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4030736059529654068, guid: dbf016b30a849c746b0902fd2ce36372, type: 3}
-      propertyPath: m_Center.y
-      value: 1.7
-      objectReference: {fileID: 0}
     - target: {fileID: 5169514525427014030, guid: dbf016b30a849c746b0902fd2ce36372, type: 3}
       propertyPath: m_Name
-      value: PlayerModel
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 5545653796035412788, guid: dbf016b30a849c746b0902fd2ce36372, type: 3}
       propertyPath: m_LocalPosition.x

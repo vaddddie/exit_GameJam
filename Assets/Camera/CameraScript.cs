@@ -22,7 +22,7 @@ public class CameraScript : MonoBehaviour
         m_Camera = GetComponent<Camera>();
         
         m_Player = GameObject.FindWithTag("Player");
-        m_CameraOffset = transform.position;
+        m_CameraOffset = transform.position - m_Player.transform.position;
         
         pointTargetEvent.AddListener(MoveCamera);
     }
