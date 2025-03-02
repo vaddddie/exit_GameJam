@@ -9,16 +9,16 @@ public class CameraScript : MonoBehaviour
     [SerializeField] private float maxViewingRadius = 5f;
     
     private InputAction m_LookAction;
+    private LayerMask m_LookLayer;
     
     private GameObject m_Player;
     private Camera m_Camera;
     private Vector3 m_CameraOffset;
     
-    private const int RaycastPower = 5;
-    
     private void Start()
     {
         m_LookAction = InputSystem.actions.FindAction("Look");
+        m_LookLayer = LayerMask.GetMask("LookFloor");
         m_Camera = GetComponent<Camera>();
         
         m_Player = GameObject.FindWithTag("Player");
@@ -27,17 +27,13 @@ public class CameraScript : MonoBehaviour
         pointTargetEvent.AddListener(MoveCamera);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         var tmp = new Vector3(m_LookAction.ReadValue<Vector2>().x, m_LookAction.ReadValue<Vector2>().y);
         var ray = m_Camera.ScreenPointToRay(tmp);
-
-        var result = new RaycastHit[RaycastPower];
-        var _ = Physics.RaycastNonAlloc(ray, result);
-        foreach (var hit in result)
+        
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, m_LookLayer))
         {
-            if (hit.transform is null) continue;
-            if (!hit.transform.CompareTag("LookFloor")) continue;
             var worldPosition = new Vector3(hit.point.x, m_Player.transform.position.y, hit.point.z);
             pointTargetEvent.Invoke(worldPosition);
         }
