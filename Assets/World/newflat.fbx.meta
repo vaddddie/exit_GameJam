@@ -1,9 +1,44 @@
 fileFormatVersion: 2
-guid: c767d3be13d06f805a6ca370cda88070
+guid: de0d02f392a154516ad67ad4dc3b2a44
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DarkWood.001
+    second: {fileID: 2100000, guid: 7d0434a6201bf6095b7402b94652cf98, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GeneralNothing.001
+    second: {fileID: 2100000, guid: d1bd0ab532fef82368d18bc423d52421, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Gold.001
+    second: {fileID: 2100000, guid: d72ad88d80da585f98b7a70fd739c2b2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Laminat
+    second: {fileID: 2100000, guid: cc71154b7f71e7272b972e2106301a8f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plitka2
+    second: {fileID: 2100000, guid: 2e7f012414e5fb840b634e2d70e154fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wall_paper.001
+    second: {fileID: 2100000, guid: 77aa5f6d50fe1f1b6806dc3c55c170b8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: plitka
+    second: {fileID: 2100000, guid: a14cfd099adf76172b899ced30e69f05, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
