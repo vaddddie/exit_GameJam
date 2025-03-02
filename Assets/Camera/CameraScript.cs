@@ -1,3 +1,4 @@
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -19,12 +20,28 @@ public class CameraScript : MonoBehaviour
     {
         m_LookAction = InputSystem.actions.FindAction("Look");
         m_LookLayer = LayerMask.GetMask("LookFloor");
+        
         m_Camera = GetComponent<Camera>();
         
         m_Player = GameObject.FindWithTag("Player");
-        m_CameraOffset = transform.position - m_Player.transform.position;
+        
+        CalculateOffset();
         
         pointTargetEvent.AddListener(MoveCamera);
+    }
+
+    private void CalculateOffset()
+    {
+        var x = m_Camera.pixelWidth / 2;
+        var y = m_Camera.pixelHeight / 2;
+        var ray = m_Camera.ScreenPointToRay(new Vector3(x, y));
+        
+        var heightOffset = (Vector3.forward + Vector3.right) / 2;
+
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, m_LookLayer))
+        {
+            m_CameraOffset = transform.position - hit.point + heightOffset;
+        }
     }
 
     private void LateUpdate()
@@ -54,8 +71,12 @@ public class CameraScript : MonoBehaviour
         var targetPosition =
             new Vector3(movingDirection.x, 0, movingDirection.z) * viewingRadius + convertedPlayerCoord;
 
-        var pathLenght = Vector3.Magnitude(targetPosition - transform.position);
-        
-        transform.position = Vector3.Lerp(transform.position, targetPosition, pathLenght * Time.deltaTime);
+        SmoothMovement(targetPosition);
+    }
+
+    private void SmoothMovement(Vector3 target)
+    {
+        var pathLenght = Vector3.Magnitude(target - transform.position);
+        transform.position = Vector3.Lerp(transform.position, target, pathLenght * Time.deltaTime);
     }
 }
